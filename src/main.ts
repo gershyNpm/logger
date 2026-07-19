@@ -71,6 +71,7 @@ export default class Logger {
   protected write: (fullCtx: Obj<Json>) => void;
   protected opts: { maxStrLen: number };
   constructor(domain: string, ctx: Obj<any> = {}, opts?: typeof this.opts, write?: typeof this.write) {
+    
     this.domain = domain;
     this.ctx = {
       ...ctx,
@@ -101,6 +102,12 @@ export default class Logger {
       seen.set(v, formatted);
       Object.assign(formatted, this.format(v[limn](), seen));
       return formatted;
+    }
+    
+    if (inCls(v, Function)) {
+      
+      return this.format(v.toString().replace(/\n/g, ' '), seen);
+      
     }
     
     if (isCls(v, Array)) {
@@ -173,8 +180,8 @@ export default class Logger {
     const logger = this.kid(domain);
     
     logger.log({ $$: 'launch', ...ctx });
-    const accept = val => { logger.log({ $$:                 'accept', ms: Date.now() - ms      }); return val; };
-    const glitch = err => { logger.log({ $$: err.log?.term?? 'glitch', ms: Date.now() - ms, err }); throw err;  }; // Always throws an error! Note allowing the consumer to override the logged term/domain offers a lot of flexibility!
+    const accept = val => { logger.log({ $$:                  'accept', ms: Date.now() - ms      }); return val; };
+    const glitch = err => { logger.log({ $$: err.log?.term ?? 'glitch', ms: Date.now() - ms, err }); throw err;  }; // Always throws an error! Note allowing the consumer to override the logged term/domain offers a lot of flexibility!
     
     let v: any; try { v = fn(logger); } catch(err) { glitch(err); }
     
