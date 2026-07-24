@@ -78,12 +78,13 @@ export default class Logger {
       $:                                this.domain,
       [this.domain.split('.').at(-1)!]: Math.random().toString(36).slice(2, 12)[padTail](10, '0'),
     };
-    this.opts = opts ?? { maxStrLen: 250 };
+    this.opts = { maxStrLen: 250, ...opts };
     
     // Note this default `this.write` function produces truncated values (sloppy outputting) in the
     // cli, but works perfectly for lambdas with json-style logging configured!
     
     this.write = write ?? ((val: Obj<Json>) => console.log(val));
+    
   }
   
   protected format(v: any, seen = new Map<any, Json>()): Json {
@@ -98,10 +99,22 @@ export default class Logger {
     if (seen.has(v)) return `<cyc> ${getClsName(v)}(...)`;
     
     if (inCls(v[limn], Function)) {
+      
+      // TODO: This is a nice idea - when an error bounces up a number of nested logger scopes,
+      // avoid printing the (probably verbose) error info multiple times. But I don't love this
+      // approach since it's coupled to what should be the side-effect-free "format" call. For now
+      // it's fine since this method is only called from `Logger.prototype.log`
+      if (inCls(v, Error)) {
+        const sym = Symbol.for('@gershy/logger/error/dedup');
+        if (v[sym]) return v[sym];
+        v[sym] = { $form: cl.getClsName(v), msg: v.message };
+      }
+      
       const formatted: any = {};
       seen.set(v, formatted);
       Object.assign(formatted, this.format(v[limn](), seen));
       return formatted;
+      
     }
     
     if (inCls(v, Function)) {
@@ -174,10 +187,10 @@ export default class Logger {
     return logger;
   }
   
-  public scope<Fn extends (logger: Logger) => any>(domain: string, ctx: Obj<any>, fn: Fn): ReturnType<Fn> {
+  public scope<Fn extends (logger: Logger) => any>(domain: null | string, ctx: Obj<any>, fn: Fn): ReturnType<Fn> {
     
     const ms = Date.now();
-    const logger = this.kid(domain);
+    const logger = domain ? this.kid(domain) : this;
     
     logger.log({ $$: 'launch', ...ctx });
     const accept = val => { logger.log({ $$:                  'accept', ms: Date.now() - ms      }); return val; };
