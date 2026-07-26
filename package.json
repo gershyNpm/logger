@@ -1,6 +1,6 @@
 {
   "name": "@gershy/logger",
-  "version": "0.0.18",
+  "version": "0.0.19",
   "author": "Gershom Maes",
   "description": "TODO",
   "keywords": [
@@ -20,7 +20,7 @@
   ],
   "license": "ISC",
   "peerDependencies": {
-    "@gershy/clearing": "^0.0.50"
+    "@gershy/clearing": "^0.0.51"
   },
   "devDependencies": {
     "@types/node": "^24.10.1"
