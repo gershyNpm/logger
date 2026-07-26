@@ -103,11 +103,12 @@ export default class Logger {
       // TODO: This is a nice idea - when an error bounces up a number of nested logger scopes,
       // avoid printing the (probably verbose) error info multiple times. But I don't love this
       // approach since it's coupled to what should be the side-effect-free "format" call. For now
-      // it's fine since this method is only called from `Logger.prototype.log`
+      // it's fine since this method is only called from `Logger.prototype.log`...
       if (inCls(v, Error)) {
         const sym = Symbol.for('@gershy/logger/error/dedup');
         if (v[sym]) return v[sym];
-        v[sym] = { $form: cl.getClsName(v), msg: v.message };
+        const msg = v.message;
+        v[sym] = { $form: cl.getClsName(v), msg: msg.length > 30 ? msg.slice(0, 29) + '\u2026' : msg };
       }
       
       const formatted: any = {};
