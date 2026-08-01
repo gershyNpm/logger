@@ -1,6 +1,6 @@
 {
   "name": "@gershy/logger",
-  "version": "0.0.19",
+  "version": "0.0.20",
   "author": "Gershom Maes",
   "description": "TODO",
   "keywords": [
@@ -8,19 +8,19 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/gershy/logger.git"
+    "url": "git+https://github.com/gershyNpm/logger.git"
   },
   "bugs": {
-    "url": "https://github.com/gershy/logger/issues"
+    "url": "https://github.com/gershyNpm/logger/issues"
   },
-  "homepage": "https://github.com/gershy/logger#readme",
+  "homepage": "https://github.com/gershyNpm/logger#readme",
   "type": "module",
   "files": [
     "cmp"
   ],
   "license": "ISC",
   "peerDependencies": {
-    "@gershy/clearing": "^0.0.51"
+    "@gershy/clearing": "^0.0.52"
   },
   "devDependencies": {
     "@types/node": "^24.10.1"
