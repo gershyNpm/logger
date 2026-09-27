@@ -96,7 +96,7 @@ export default class Logger {
     if (isCls(v, Number))  return v;
     
     if (isCls(v, String)) {
-      const { maxStrLen }  = this.opts;
+      const { maxStrLen } = this.opts;
       if (v.length <= maxStrLen) return v;
       
       // Note slice ranges are secure due to minimum `maxStrLen` value (of 10)
