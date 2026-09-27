@@ -83,7 +83,6 @@ export default class Logger {
     
     // Note this default `this.write` function produces truncated values (sloppy outputting) in the
     // cli, but works perfectly for lambdas with json-style logging configured!
-    
     this.write = write ?? ((val: Obj<Json>) => console.log(val));
     
   }
