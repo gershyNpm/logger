@@ -79,6 +79,7 @@ export default class Logger {
       [this.domain.split('.').at(-1)!]: Math.random().toString(36).slice(2, 12)[padTail](10, '0'),
     };
     this.opts = { maxStrLen: 250, ...opts };
+    Error[cl.assert](this.opts, v => v.maxStrLen >= 10);
     
     // Note this default `this.write` function produces truncated values (sloppy outputting) in the
     // cli, but works perfectly for lambdas with json-style logging configured!
@@ -94,21 +95,29 @@ export default class Logger {
     if (v == null)         return null;
     if (isCls(v, Boolean)) return v;
     if (isCls(v, Number))  return v;
-    if (isCls(v, String))  return v.length > this.opts.maxStrLen ? v.slice(0, this.opts.maxStrLen - 1) + '\u2026' : v;
+    
+    if (isCls(v, String)) {
+      const { maxStrLen }  = this.opts;
+      if (v.length <= maxStrLen) return v;
+      
+      // Note slice ranges are secure due to minimum `maxStrLen` value (of 10)
+      const [ l0, l1 ] = [ Math.floor(maxStrLen * 0.5), Math.ceil(maxStrLen * 0.5) ];
+      return `${v.slice(0, l0)}\u2026${v.slice(-(l1 - 1))}`;
+    }
     
     if (seen.has(v)) return `<cyc> ${getClsName(v)}(...)`;
+    seen.set(v, '<this should never show up>');
     
     if (inCls(v[limn], Function)) {
       
       // TODO: This is a nice idea - when an error bounces up a number of nested logger scopes,
       // avoid printing the (probably verbose) error info multiple times. But I don't love this
       // approach since it's coupled to what should be the side-effect-free "format" call. For now
-      // it's fine since this method is only called from `Logger.prototype.log`...
+      // it's fine since this method is strictly only called from `Logger.prototype.log`...
       if (inCls(v, Error)) {
         const sym = Symbol.for('@gershy/logger/error/dedup');
         if (v[sym]) return v[sym];
-        const msg = v.message;
-        v[sym] = { $form: cl.getClsName(v), msg: msg.length > 30 ? msg.slice(0, 29) + '\u2026' : msg };
+        v[sym] = { $form: cl.getClsName(v), msg: this.format(v.message, seen) };
       }
       
       const formatted: any = {};
