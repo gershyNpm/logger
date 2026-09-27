@@ -107,7 +107,7 @@ export default class Logger {
     }
     
     if (seen.has(v)) return `<cyc> ${getClsName(v)}(...)`;
-    seen.set(v, '<this should never show up>');
+    seen.set(v, '<OWWW>');
     
     if (inCls(v[limn], Function)) {
       
