@@ -96,12 +96,14 @@ export default class Logger {
     if (isCls(v, Number))  return v;
     
     if (isCls(v, String)) {
+      
       const { maxStrLen } = this.opts;
       if (v.length <= maxStrLen) return v;
       
       // Note slice ranges are secure due to minimum `maxStrLen` value (of 10)
       const [ l0, l1 ] = [ Math.floor(maxStrLen * 0.5), Math.ceil(maxStrLen * 0.5) ];
       return `${v.slice(0, l0)}\u2026${v.slice(-(l1 - 1))}`;
+      
     }
     
     if (seen.has(v)) return `<cyc> ${getClsName(v)}(...)`;
